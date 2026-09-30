@@ -1,6 +1,6 @@
 "use client"
 
-import {useContext, useEffect, useReducer, useState} from "react";
+import {useContext, useEffect, useReducer, useRef, useState} from "react";
 import SearchResult from "@/components/SearchResult";
 //import type { Album } from "@/types/album";
 import type { GptResponse, ChefTool } from "@/types/gpt";
@@ -8,7 +8,7 @@ import { searchAlbums } from "@/service/albumService";
 import { askChefAgent, askOllama, useOperator } from "@/service/aiService";
 import { useRouter } from "next/navigation"
 import SearchForm from "@/components/SearchForm";
-import SearchTimer from "./SearchTimer";
+import SearchTimer, { SearchTimerHandle } from "./SearchTimer";
 import { ColorMode, ColorModeContext, useColorMode } from "@/contexts/ColorModeContext";
 import { OllamaModel } from "@/types/OllamaModel";
 import ChefToolList from "./ChefToolList";
@@ -89,6 +89,7 @@ export default function AlbumSearch() {
     const [state, dispatch] = useReducer( searchReducer, initialState);
     const [applyState, setApplyState] = useState<ApplyState>(ApplyState.NOTYET);
     const [toolRunning, setToolRunning] = useState("");
+    const timerRef = useRef<SearchTimerHandle>(null);
 
     const mainClass=`rounded-lg p-6 shadow
             ${
@@ -132,6 +133,8 @@ export default function AlbumSearch() {
         //setLoading(true);
         //setError("");
         //setSimpleAnswer("");
+        timerRef.current?.reset()
+        timerRef.current?.start();
         dispatch( { type : "SEARCH_START"});
 
         try {
@@ -139,7 +142,7 @@ export default function AlbumSearch() {
 
             } else {
                 if (model===OllamaModel.SIMPLE) {
-                    const answer = await askOllama(searchText);
+                    const answer = await askOllama(searchText, OllamaModel.QWEN3);
                     dispatch({
                         type: "SEARCH_SUCCESS",
                         answer: answer,
@@ -149,6 +152,7 @@ export default function AlbumSearch() {
                 } else {
                     const answer = await askChefAgent(searchText, model);
                     console.log("answer:", answer);
+                    timerRef.current?.stop()
                     dispatch({
                         type: "SEARCH_SUCCESS",
                         answer: answer,
@@ -225,7 +229,7 @@ export default function AlbumSearch() {
           loading={state.loading}
           />
 
-          <SearchTimer />
+          <SearchTimer ref={timerRef} />
 
           {state.tools?.length > 0 && (
                 <ChefToolList tools={state.tools} onApply={handleApplyTool} 

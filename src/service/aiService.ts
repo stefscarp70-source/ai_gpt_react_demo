@@ -20,9 +20,9 @@ type OperatorResponse = {
   status: string;
 }
 
-export async function askOllama(simple: string): Promise<GptResponse> {
+export async function askOllama(simple: string, model:OllamaModel): Promise<GptResponse> {
   const response = await fetch(
-    `/api/ollama?question=${encodeURIComponent(simple)}`
+    `/api/ollama?question=${encodeURIComponent(simple)}&model=${model}`
   );
 
   if (!response.ok) {

@@ -1,20 +1,58 @@
-import { useEffect, useState } from "react";
+import {
+    forwardRef,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState
+} from "react";
 
-export default function SearchTimer() {
+export type SearchTimerHandle = {
+    start: () => void;
+    stop: () => void;
+    reset: () => void;
+};
+
+const SearchTimer = forwardRef<SearchTimerHandle>((props, ref) => {
     const [seconds, setSeconds] = useState(0);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    useImperativeHandle(ref, () => ({
+        start() {
+            if (intervalRef.current !== null) {
+                return;
+            }
+
+            intervalRef.current = setInterval(() => {
+                setSeconds(s => s + 1);
+            }, 1000);
+        },
+
+        stop() {
+            if (intervalRef.current !== null) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        },
+
+        reset() {
+            setSeconds(0);
+        }
+    }));
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setSeconds((current) => current + 1);
-        }, 1000);
-
-        return () => clearInterval(timer);
+        return () => {
+            if (intervalRef.current !== null) {
+                clearInterval(intervalRef.current);
+            }
+        };
     }, []);
 
 
     return (
         <p className="mt-4 text-sm text-gray-500">
-            Component active for {seconds} seconds
+            Agent search ongoing for {seconds} seconds
         </p>
     );
-}
+});
+
+export default SearchTimer;

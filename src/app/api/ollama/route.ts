@@ -5,6 +5,7 @@ export async function GET(request:NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const question = searchParams.get("question");
+    const model = searchParams.get("model")? searchParams.get("model") : 'LLAMA';
     const server = "http://localhost:8585";
 
     if (!question) {
@@ -16,7 +17,7 @@ export async function GET(request:NextRequest) {
 
     try {
         const url = server+'/api/ollama?' +
-            `question=${encodeURIComponent(question)}`;
+            `question=${encodeURIComponent(question)}&model=${model}`;
         const response = await fetch(url);
         
         if (!response.ok) {
