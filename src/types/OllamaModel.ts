@@ -3,5 +3,5 @@ export enum OllamaModel {
     QWEN3_4B = "QWEN3_4B",
     QWEN3 = "QWEN3",
     GPT = "GPT",
-    SIMPLE = "SIMPLE",
+    GEMMA4 = "GEMMA4",
 }

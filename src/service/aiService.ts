@@ -20,9 +20,9 @@ type OperatorResponse = {
   status: string;
 }
 
-export async function askOllama(simple: string, model:OllamaModel): Promise<GptResponse> {
+export async function askSimple(simple: string, model:OllamaModel): Promise<GptResponse> {
   const response = await fetch(
-    `/api/ollama?question=${encodeURIComponent(simple)}&model=${model}`
+    `/api/simple?question=${encodeURIComponent(simple)}&model=${model}`
   );
 
   if (!response.ok) {
@@ -36,7 +36,7 @@ export async function askOllama(simple: string, model:OllamaModel): Promise<GptR
 
 export async function askChefAgent(simple: string, model:OllamaModel): Promise<GptResponse> {
   const response = await fetch(
-    `/api/agent/chef?question=${encodeURIComponent(simple)}&model=${encodeURIComponent(model)}`
+    `/api/agent/chef?question=${encodeURIComponent(simple)}&model=${model}`
   );
 
   if (!response.ok) {

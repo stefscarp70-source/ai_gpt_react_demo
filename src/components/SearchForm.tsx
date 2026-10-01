@@ -6,7 +6,7 @@ type SearchFormProps = {
     searchText: string;
     loading: boolean;
     onSearchTextChange: (value: string) => void;
-    onSubmit: (model: OllamaModel) => void;
+    onSubmit: (model: OllamaModel, agentic: boolean) => void;
 }
 
 export default function SearchForm({ searchText, loading, onSearchTextChange, onSubmit }: SearchFormProps) {
@@ -14,6 +14,7 @@ export default function SearchForm({ searchText, loading, onSearchTextChange, on
     const inputRef = useRef<HTMLInputElement>(null);
     const {colorMode} = useColorMode();
     const [model, setModel] = useState(OllamaModel.LLAMA3);
+    const [agentic, setAgentic] = useState(true);
 
     useEffect(() => {
             inputRef.current?.focus();
@@ -35,7 +36,7 @@ export default function SearchForm({ searchText, loading, onSearchTextChange, on
         }
 
         setValidationError("");
-        onSubmit(model);
+        onSubmit(model, agentic);
     }
 
     return (
@@ -56,14 +57,14 @@ export default function SearchForm({ searchText, loading, onSearchTextChange, on
                 <option value={OllamaModel.QWEN3}>
                     Qwen 3 - 8B
                 </option>
+                <option value={OllamaModel.GEMMA4}>
+                    Gemma 4 - e4B
+                </option>
                 <option value={OllamaModel.GPT}>
                     GPT
                 </option>
-
-                <option value={OllamaModel.SIMPLE}>
-                    Simple
-                </option>
             </select>
+            
 
             <input
               ref={inputRef}
@@ -73,13 +74,25 @@ export default function SearchForm({ searchText, loading, onSearchTextChange, on
               placeholder="Artist to search for"
               className={className}
               />
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-md bg-blue-600 px-5 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >                
-                {loading ? "Querying Ollama..." : "Search"}
-              </button>              
+
+              <div className="flex flex-col items-center gap-1">
+                    <label className="flex items-center gap-2 whitespace-nowrap">
+                        <input
+                            type="checkbox"
+                            checked={agentic}
+                            onChange={(event) => setAgentic(event.target.checked)}
+                            className="h-4 w-4"
+                        /> Agentic
+                    </label>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="rounded-md bg-blue-600 px-5 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >                
+                        {loading ? "Querying Ollama..." : "Search"}
+                    </button> 
+              </div>
+                           
         </form>
     );
 }

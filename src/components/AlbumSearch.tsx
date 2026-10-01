@@ -5,7 +5,7 @@ import SearchResult from "@/components/SearchResult";
 //import type { Album } from "@/types/album";
 import type { GptResponse, ChefTool } from "@/types/gpt";
 import { searchAlbums } from "@/service/albumService";
-import { askChefAgent, askOllama, useOperator } from "@/service/aiService";
+import { askChefAgent, askOllama, askSimple, useOperator } from "@/service/aiService";
 import { useRouter } from "next/navigation"
 import SearchForm from "@/components/SearchForm";
 import SearchTimer, { SearchTimerHandle } from "./SearchTimer";
@@ -125,7 +125,7 @@ export default function AlbumSearch() {
     }
 
     
-    async function handleSearch(model: OllamaModel) {
+    async function handleSearch(model: OllamaModel, agentic: boolean) {
         console.log("Searching for:", searchText);
         
         let album: boolean = false;
@@ -141,8 +141,9 @@ export default function AlbumSearch() {
             if (album) {
 
             } else {
-                if (model===OllamaModel.SIMPLE) {
-                    const answer = await askOllama(searchText, OllamaModel.QWEN3);
+                if (!agentic) {
+                    const answer = await askSimple(searchText, model);
+                    timerRef.current?.stop();
                     dispatch({
                         type: "SEARCH_SUCCESS",
                         answer: answer,
@@ -150,6 +151,7 @@ export default function AlbumSearch() {
                         albums: []
                     });
                 } else {
+                    console.log("model: ", model);
                     const answer = await askChefAgent(searchText, model);
                     console.log("answer:", answer);
                     timerRef.current?.stop()
