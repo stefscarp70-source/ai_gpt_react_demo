@@ -26,7 +26,8 @@ export async function askSimple(simple: string, model:OllamaModel): Promise<GptR
   );
 
   if (!response.ok) {
-    throw new Error("Unable to query Ollama");
+    const data = await response.json();
+    throw new Error(data.error || {message: "Unable to query Ollama"});
   }
 
   const data: GptResponse = await response.json();
@@ -40,7 +41,8 @@ export async function askChefAgent(simple: string, model:OllamaModel): Promise<G
   );
 
   if (!response.ok) {
-    throw new Error("Unable to query Ollama");
+    const data = await response.json();
+    throw new Error(data.error || {message: "Unable to query Ollama"});
   }
 
   const data: GptResponse = await response.json();

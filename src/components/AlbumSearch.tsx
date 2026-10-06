@@ -8,7 +8,7 @@ import { askChefAgent, askSimple, useOperator } from "@/service/aiService";
 import { useRouter } from "next/navigation"
 import SearchForm from "@/components/SearchForm";
 import SearchTimer, { SearchTimerHandle } from "./SearchTimer";
-import { ColorMode, ColorModeContext, useColorMode } from "@/contexts/ColorModeContext";
+import { ColorMode, useColorMode } from "@/contexts/ColorModeContext";
 import { useSearchContext } from "@/contexts/SearchContext";
 import { OllamaModel } from "@/types/OllamaModel";
 import ChefToolList from "./ChefToolList";
@@ -67,7 +67,7 @@ export default function AlbumSearch() {
         
         let album: boolean = false;
 
-        timerRef.current?.reset()
+        //timerRef.current?.reset()
         timerRef.current?.start();
         dispatch( { type : "SEARCH_START"});
 
@@ -120,6 +120,9 @@ export default function AlbumSearch() {
                 type: "SEARCH_ERROR",
                 error: `Unable to perform search: ${error}`
             })
+        } finally {
+            timerRef.current?.reset();
+            console.log("Timer cleaned up");
         }
 
     }

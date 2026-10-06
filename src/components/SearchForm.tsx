@@ -6,7 +6,7 @@ type SearchFormProps = {
     searchText: string;
     loading: boolean;
     onSearchTextChange: (value: string) => void;
-    onSubmit: (model: OllamaModel, agentic: boolean) => void;
+    onSubmit: (model: OllamaModel, agentic: boolean) => Promise<void>;
 }
 
 export default function SearchForm({ searchText, loading, onSearchTextChange, onSubmit }: SearchFormProps) {
@@ -27,7 +27,7 @@ export default function SearchForm({ searchText, loading, onSearchTextChange, on
             : "border-gray-300 bg-white text-gray-900 focus:border-blue-500 focus:ring-blue-200"
         }`;
 
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         if (!searchText.trim()) {
@@ -36,7 +36,7 @@ export default function SearchForm({ searchText, loading, onSearchTextChange, on
         }
 
         setValidationError("");
-        onSubmit(model, agentic);
+        await onSubmit(model, agentic); //per ora await non serve, ma in futuro potrei voler fare qualcosa dopo la ricerca
     }
 
     return (
