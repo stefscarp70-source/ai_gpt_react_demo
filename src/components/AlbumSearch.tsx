@@ -1,92 +1,29 @@
 "use client"
 
-import {useContext, useEffect, useReducer, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import SearchResult from "@/components/SearchResult";
 //import type { Album } from "@/types/album";
-import type { GptResponse, ChefTool } from "@/types/gpt";
-import { searchAlbums } from "@/service/albumService";
-import { askChefAgent, askOllama, askSimple, useOperator } from "@/service/aiService";
+import type { ChefTool } from "@/types/gpt";
+import { askChefAgent, askSimple, useOperator } from "@/service/aiService";
 import { useRouter } from "next/navigation"
 import SearchForm from "@/components/SearchForm";
 import SearchTimer, { SearchTimerHandle } from "./SearchTimer";
 import { ColorMode, ColorModeContext, useColorMode } from "@/contexts/ColorModeContext";
+import { useSearchContext } from "@/contexts/SearchContext";
 import { OllamaModel } from "@/types/OllamaModel";
 import ChefToolList from "./ChefToolList";
 import { ChefToolAction, ApplyState } from "@/types/ChefToolAction";
 
-type SearchState = {
-    loading: boolean;
-    error: string;
-    simpleAnswer: GptResponse|string;
-    tools: ChefTool[];
-    albums: Album[];
-}
-type SearchAction = 
-    | {type: "SEARCH_START"}
-    | {
-        type: "SEARCH_SUCCESS";
-        answer: GptResponse|string;
-        tools: ChefTool[];
-        albums: Album[];
-    }
-    | {
-        type: "SEARCH_ERROR";
-        error: string;
-    }
-
-function searchReducer(
-    state: SearchState,
-    action: SearchAction
-): SearchState     {
-    switch(action.type) {
-        case "SEARCH_START":
-            return {
-                ...state,
-                loading: true,
-                error: "",
-                simpleAnswer: ""
-            };
-        case "SEARCH_SUCCESS": 
-            return {
-                ...state,
-                loading: false,
-                simpleAnswer: action.answer,
-                tools: action.tools,
-                albums: action.albums
-            };
-        case "SEARCH_ERROR":
-            return {
-                ...state,
-                loading: false,
-                error: action.error
-            };
-        default:
-            return state;
-    }
-}
-
 
 
 export default function AlbumSearch() {
-    const [searchText, setSearchText] = useState("");
-    //const [tools, setTools] = useState<ChefTool[]>([]);
-    //const [simpleAnswer, setSimpleAnswer] = useState<GptResponse | "">("");
-    //const [loading, setLoading] = useState(false);
-    //const [error, setError] = useState("");
-    //const [albums, setAlbums] = useState<Album[]>([]);
-    
+    const [searchText, setSearchText] = useState("");    
     const router = useRouter();
     const {colorMode} = useColorMode();
+    
+    //const [state, dispatch] = useReducer( searchReducer, initialState);
+    const {state, dispatch} = useSearchContext();
 
-    const initialState: SearchState = {
-        loading: false,
-        error: "",
-        simpleAnswer: "",
-        tools: [],
-        albums: []
-    };
-
-    const [state, dispatch] = useReducer( searchReducer, initialState);
     const [applyState, setApplyState] = useState<ApplyState>(ApplyState.NOTYET);
     const [toolRunning, setToolRunning] = useState("");
     const timerRef = useRef<SearchTimerHandle>(null);
@@ -130,9 +67,6 @@ export default function AlbumSearch() {
         
         let album: boolean = false;
 
-        //setLoading(true);
-        //setError("");
-        //setSimpleAnswer("");
         timerRef.current?.reset()
         timerRef.current?.start();
         dispatch( { type : "SEARCH_START"});
@@ -141,20 +75,27 @@ export default function AlbumSearch() {
             if (album) {
 
             } else {
+                
                 if (!agentic) {
                     const answer = await askSimple(searchText, model);
-                    timerRef.current?.stop();
+                    const secTime = timerRef.current?.stop();
                     dispatch({
                         type: "SEARCH_SUCCESS",
                         answer: answer,
+                        item: {
+                            answer: answer.response!,
+                            model: model,
+                            tokens: answer.totalTokens!,
+                            minutes: secTime
+                        },
                         tools: [],
                         albums: []
                     });
                 } else {
                     console.log("model: ", model);
                     const answer = await askChefAgent(searchText, model);
+                    const secTime = timerRef.current?.stop();
                     console.log("answer:", answer);
-                    timerRef.current?.stop()
                     dispatch({
                         type: "SEARCH_SUCCESS",
                         answer: answer,
@@ -162,6 +103,12 @@ export default function AlbumSearch() {
                                 ...to,
                                 action: getToolAction(to.name)
                             })),
+                        item: {
+                            answer: answer.response!,
+                            model: model,
+                            tokens: answer.totalTokens!,
+                            minutes: secTime
+                        },    
                         albums: []
                     });
                 }
@@ -224,23 +171,25 @@ export default function AlbumSearch() {
         {state.error && (
             <p className="mt-4 text-red-600">{state.error}</p>
         )}
+
+        <SearchTimer ref={timerRef} />
+
+        {state.tools?.length > 0 && (
+            <ChefToolList tools={state.tools} onApply={handleApplyTool} 
+                applyState={applyState}
+                toolRunning={toolRunning}
+            />
+        )}
+
         <SearchResult 
           searchText={searchText} 
           albums={state.albums}
           simpleAnswer={state.simpleAnswer}
           loading={state.loading}
-          />
-
-          <SearchTimer ref={timerRef} />
-
-          {state.tools?.length > 0 && (
-                <ChefToolList tools={state.tools} onApply={handleApplyTool} 
-                    applyState={applyState}
-                    toolRunning={toolRunning}
-                />
-          )}
+          items={state.history}
+        />
+          
       </div>
-
       
     );
 }

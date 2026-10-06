@@ -1,18 +1,22 @@
 import type { Album } from "@/types/album";
 import AlbumCard from "@/components/AlbumCard";
+import SearchHistory from "./SearchHistory";
+import { SearchHistoryItem } from "@/types/SearchHistoryItem";
 
 type SearchResultProps = {
     searchText: string;
     albums: Album[];
     simpleAnswer: GptResponse | "";
     loading: boolean;
+    items: SearchHistoryItem[];
 }
 
 export default function SearchResult({
     searchText,
     albums,
     simpleAnswer,
-    loading
+    loading,
+    items
 }: SearchResultProps) {
     if (!searchText) {
         return null;
@@ -37,18 +41,22 @@ export default function SearchResult({
                 </div>
                 )}
 
-                {albums.length === 0 ? (
-                    <p className="text-gray-500">No albums found.</p>
-                ) : (
-                    <ul className="space-y-3">
-                    {albums.map((album) => (
-                        <AlbumCard key={album.id} album={album} />
-                    ))}
-                    </ul>
-                )}
+                
                 </>            
             )
         }       
+
+        <SearchHistory items={items}            />
+
+        {albums.length === 0 ? (
+            <p className="text-gray-500">No albums found.</p>
+        ) : (
+            <ul className="space-y-3">
+            {albums.map((album) => (
+                <AlbumCard key={album.id} album={album} />
+            ))}
+            </ul>
+        )}
 
         
         </div>

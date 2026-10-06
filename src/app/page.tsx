@@ -1,4 +1,5 @@
 import AlbumSearch from "@/components/AlbumSearch";
+import { SearchProvider } from "@/contexts/SearchContext";
 
 export default function Home() {
   return (
@@ -11,7 +12,11 @@ export default function Home() {
         <p className="mb-8 text-gray-600">
           Search for your favorite albums
         </p>
-        <AlbumSearch />
+
+        <SearchProvider>
+          <AlbumSearch />
+        </SearchProvider>
+        
       </div>  
     </main>
   );
