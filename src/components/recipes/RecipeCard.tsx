@@ -22,7 +22,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
                     <div className="rounded-lg bg-white p-6 shadow-lg">
                         <div className="flex justify-between">
                             <h2 className="text-xl font-semibold">
-                                {recipe.name}
+                                {recipe.recipeName}
                             </h2>
                              <button type="button" onClick={() => setOpen(false)} className="text-gray-500 hover:text-gray-700">
                                 X
