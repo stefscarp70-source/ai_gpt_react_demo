@@ -1,6 +1,7 @@
 "use client"
 
 import { ColorMode, useColorMode } from "@/contexts/ColorModeContext"
+import Link from "next/link";
 
 
 export default function Header() {
@@ -10,8 +11,13 @@ export default function Header() {
     return (
         <header className="mb-6 flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <h1 className="text-xl font-bold">
-                Music Search
+                Simple and Agent Search
             </h1>
+
+            <nav>
+                <Link href="/">Search</Link>&nbsp;
+                <Link className="rounded-md bg-blue-600 px-3 py-2 text-white hover:bg-blue-700" href="/recipe">Recipes</Link>
+            </nav>
 
             <button
                 type="button"

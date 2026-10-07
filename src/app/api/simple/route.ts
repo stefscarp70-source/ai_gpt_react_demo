@@ -33,7 +33,7 @@ export async function GET(request:NextRequest) {
     } catch (error) {
         console.log("Next error:", error);
         return NextResponse.json(
-            { error: "Unable to query Ollama" },
+            { error: `Unable to query Ollama model ${model}, reason: ${error}` },          
             { status: 500 }
         );
     }

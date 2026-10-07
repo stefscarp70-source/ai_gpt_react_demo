@@ -36,7 +36,7 @@ export default function SearchForm({ searchText, loading, onSearchTextChange, on
         }
 
         setValidationError("");
-        await onSubmit(model, agentic); //per ora await non serve, ma in futuro potrei voler fare qualcosa dopo la ricerca
+        await onSubmit(model, agentic); //as of now await is not needed, but in the future it might
     }
 
     return (
